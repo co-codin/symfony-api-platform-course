@@ -3,8 +3,10 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -12,7 +14,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity
  */
-#[ApiResource]
+#[ApiResource(
+    collectionOperations: ['get', 'post'],
+    itemOperations: ['get', 'put', 'patch'],
+    attributes: ["pagination_items_per_page" => 5]
+)]
 class Manufacturer
 {
     /**
@@ -29,7 +35,10 @@ class Manufacturer
      *
      * @ORM\Column
      */
-    #[Assert\NotBlank]
+    #[
+        Assert\NotBlank,
+        Groups(['product.read'])
+    ]
     private string $name = '';
 
     /**
@@ -64,6 +73,7 @@ class Manufacturer
      *     mappedBy="manufacturer",
      *     cascade={"persist", "remove"})
      */
+    #[ApiSubresource]
     private iterable $products;
 
     public function __construct()

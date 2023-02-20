@@ -2,15 +2,43 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * A Product
  * @ORM\Entity
  */
-#[ApiResource]
+#[
+    ApiResource(
+        normalizationContext: ['groups' => ['product.read']],
+        denormalizationContext: ['groups' => ['product.write']],
+        collectionOperations: [
+            'get',
+            'post' => ['security' => 'is_granted("ROLE_ADMIN")']
+        ],
+        attributes: ["pagination_items_per_page" => 5]
+    ),
+    ApiFilter(
+        SearchFilter::class,
+        properties: [
+            'name' => SearchFilter::STRATEGY_PARTIAL,
+            'description' => SearchFilter::STRATEGY_PARTIAL,
+            'manufacturer.countryCode' => SearchFilter::STRATEGY_EXACT,
+            'manufacturer.id' => SearchFilter::STRATEGY_EXACT,
+        ]
+    ),
+    ApiFilter(
+        OrderFilter::class,
+        properties: ['issueDate']
+    )
+
+]
 class Product
 {
     /**
@@ -27,7 +55,10 @@ class Product
      *
      * @ORM\Column
      */
-    #[Assert\NotNull]
+    #[
+        Assert\NotNull,
+        Groups(['product.read', 'product.write'])
+    ]
     private ?string $mpn = null;
 
     /**
@@ -35,7 +66,10 @@ class Product
      *
      * @ORM\Column
      */
-    #[Assert\NotBlank]
+    #[
+        Assert\NotBlank,
+        Groups(['product.read', 'product.write'])
+    ]
     private string $name = '';
 
     /**
@@ -43,7 +77,10 @@ class Product
      *
      * @ORM\Column(type="text")
      */
-    #[Assert\NotBlank]
+    #[
+        Assert\NotBlank,
+        Groups(['product.read', 'product.write'])
+    ]
     private string $description = '';
 
     /**
@@ -51,7 +88,10 @@ class Product
      *
      * @ORM\Column(type="datetime")
      */
-    #[Assert\NotNull]
+    #[
+        Assert\NotNull,
+        Groups(['product.read', 'product.write'])
+    ]
     private ?\DateTimeInterface $issueDate = null;
 
     /**
@@ -59,6 +99,10 @@ class Product
      *
      * @ORM\ManyToOne(targetEntity="Manufacturer", inversedBy="products")
      */
+    #[
+        Groups(['product.read', 'product.write']),
+        Assert\NotNull
+    ]
     private ?Manufacturer $manufacturer = null;
 
     /**
