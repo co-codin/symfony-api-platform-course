@@ -2,8 +2,9 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * A Product
@@ -26,6 +27,7 @@ class Product
      *
      * @ORM\Column
      */
+    #[Assert\NotNull]
     private ?string $mpn = null;
 
     /**
@@ -33,6 +35,7 @@ class Product
      *
      * @ORM\Column
      */
+    #[Assert\NotBlank]
     private string $name = '';
 
     /**
@@ -40,6 +43,7 @@ class Product
      *
      * @ORM\Column(type="text")
      */
+    #[Assert\NotBlank]
     private string $description = '';
 
     /**
@@ -47,14 +51,15 @@ class Product
      *
      * @ORM\Column(type="datetime")
      */
+    #[Assert\NotNull]
     private ?\DateTimeInterface $issueDate = null;
 
     /**
-     * The manufacturer of the product
+     * The manufacturer of the product.
      *
      * @ORM\ManyToOne(targetEntity="Manufacturer", inversedBy="products")
      */
-    private ?Manufacturer $manufacturer;
+    private ?Manufacturer $manufacturer = null;
 
     /**
      * @return int|null
@@ -126,5 +131,21 @@ class Product
     public function setIssueDate(?\DateTimeInterface $issueDate): void
     {
         $this->issueDate = $issueDate;
+    }
+
+    /**
+     * @return Manufacturer|null
+     */
+    public function getManufacturer(): ?Manufacturer
+    {
+        return $this->manufacturer;
+    }
+
+    /**
+     * @param Manufacturer|null $manufacturer
+     */
+    public function setManufacturer(?Manufacturer $manufacturer): void
+    {
+        $this->manufacturer = $manufacturer;
     }
 }

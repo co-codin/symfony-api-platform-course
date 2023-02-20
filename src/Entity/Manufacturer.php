@@ -2,9 +2,10 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * A manufacturer
@@ -28,6 +29,7 @@ class Manufacturer
      *
      * @ORM\Column
      */
+    #[Assert\NotBlank]
     private string $name = '';
 
     /**
@@ -69,7 +71,9 @@ class Manufacturer
         $this->products = new ArrayCollection();
     }
 
-
+    /**
+     * @return int|null
+     */
     public function getId(): ?int
     {
         return $this->id;
@@ -140,7 +144,7 @@ class Manufacturer
     }
 
     /**
-     * @return iterable|ArrayCollection
+     * @return Product[]
      */
     public function getProducts(): iterable|ArrayCollection
     {
